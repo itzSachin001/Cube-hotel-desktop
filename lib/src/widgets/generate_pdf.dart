@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart';
 import 'package:shopos/src/models/input/order_input.dart';
 import 'package:shopos/src/models/user.dart';
 import 'package:shopos/src/pages/checkout.dart';
+import 'package:shopos/src/services/global.dart';
 
 Future<void> generatePdf({
   required String fileName,
@@ -22,9 +23,20 @@ Future<void> generatePdf({
 }) async {
   final pdf = pw.Document();
 
+  final font = await rootBundle.load('assets/OpenSans-Regular.ttf');
+  final ttf = await Font.ttf(font);
+
   List<String> address = user.address.toString().split(',');
 
-  final List<pw.Row> tableRows = [];
+  final List<pw.TableRow> tableRows = [];
+
+  tableRows.add(pw.TableRow(children: [
+    pw.Text('Name'),
+    pw.Text('Qty'),
+    pw.Text('Rate/Unit'),
+    if (gstType != 'WithoutGST') pw.Text('GST/Unit'),
+    pw.Text('Amount')
+  ]));
 
   for (var data in orderInput.orderItems!) {
     double basePrice = 0.0;
@@ -65,19 +77,23 @@ Future<void> generatePdf({
       }
     }
 
-    final tableRow = pw.Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final tableRow = pw.TableRow(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        pw.Text(
-          data.product!.name.toString(),
+        pw.Container(
+          width: 100,
+          child: pw.Text(
+            data.product!.name!,
+            overflow: TextOverflow.visible,
+            maxLines: 3,
+          ),
         ),
-        pw.Text(data.quantity.toString(), textAlign: TextAlign.right),
+        pw.Text(data.quantity.toString()),
         pw.Text('$basePrice'),
-        gstType == 'WithoutGST'
-            ? Container()
-            : (data.product!.gstRate == 'null'
-                ? pw.Text('NA')
-                : pw.Text(data.product!.saleigst!)),
+        if (gstType != 'WithoutGST')
+          (data.product!.gstRate == 'null'
+              ? pw.Text('NA')
+              : pw.Text(data.product!.saleigst!)),
         orderType == OrderType.sale
             ? pw.Text('${(data.quantity) * (data.product?.sellingPrice ?? 0)}')
             : pw.Text(
@@ -87,12 +103,9 @@ Future<void> generatePdf({
     tableRows.add(tableRow);
   }
 
-  final pw.Column table = pw.Column(
-    children: tableRows,
-  );
-
-  final font = await rootBundle.load('assets/OpenSans-Regular.ttf');
-  final ttf = await Font.ttf(font);
+  // final pw.Column table = pw.Column(
+  //   children: tableRows,
+  // );
 
   pdf.addPage(
     pw.Page(build: (pw.Context context) {
@@ -124,13 +137,13 @@ Future<void> generatePdf({
         pw.Text('Email: ${user.email}', style: TextStyle(font: ttf)),
         pw.Text('Phone: ${user.phoneNumber}', style: TextStyle(font: ttf)),
         pw.SizedBox(height: 20),
-        pw.Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          pw.Text('Name'),
-          pw.Text('Qty'),
-          pw.Text('Rate/Unit'),
-          gstType == 'WithoutGST' ? Container() : pw.Text('GST/Unit'),
-          pw.Text('Amount')
-        ]),
+        // pw.Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        //   pw.Text('Name'),
+        //   pw.Text('Qty'),
+        //   pw.Text('Rate/Unit'),
+        //   if (gstType != 'WithoutGST') pw.Text('GST/Unit'),
+        //   pw.Text('Amount')
+        // ]),
 
         // pw.Table(children: [
         //   pw.TableRow(children: [
@@ -143,7 +156,7 @@ Future<void> generatePdf({
 
         // ]),
 
-        table,
+        pw.Table(children: tableRows),
 
         // table,
 
@@ -192,16 +205,24 @@ Future<void> generatePdf({
 
   print('ruuning');
 
+  GlobalServices().showSnackBar(message: 'Pdf generated', time: 2);
+
   // Save PDF to a file
   final file = File(fileName);
   await file.writeAsBytes(await pdf.save());
 
   print('pdf save');
 
-  await OpenAppFile.open(
-    file.path,
-    mimeType: 'application/pdf',
-  );
+  await Future.delayed(const Duration(seconds: 1));
+
+  try {
+    await OpenAppFile.open(
+      file.path,
+      mimeType: 'application/pdf',
+    );
+  } catch (e) {
+    GlobalServices().showSnackBar(message: 'Pdf not Opened', time: 2);
+  }
 
   // final pdfController =
   //     PdfController(document: PdfDocument.openFile(file.path));

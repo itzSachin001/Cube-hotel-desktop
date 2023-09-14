@@ -1,26 +1,30 @@
 import 'package:image_picker/image_picker.dart';
 
 class ProductFormInput {
-  ProductFormInput(
-      {this.name,
-      this.sellingPrice,
-      this.barCode,
-      this.id,
-      this.purchasePrice,
-      this.quantity,
-      this.image,
-      this.gst = false,
-      this.salecgst,
-      this.saleigst,
-      this.salesgst,
-      this.purchasecgst,
-      this.purchaseigst,
-      this.purchasesgst,
-      this.gstRate,
-      this.baseSellingPriceGst,
-      this.basePurchasePriceGst,
-      this.imageFile,
-      this.expirydate = ""});
+  ProductFormInput({
+    this.name,
+    this.sellingPrice,
+    this.barCode,
+    this.id,
+    this.purchasePrice,
+    this.quantity,
+    this.image,
+    this.gst = false,
+    this.salecgst,
+    this.saleigst,
+    this.salesgst,
+    this.purchasecgst,
+    this.purchaseigst,
+    this.purchasesgst,
+    this.gstRate,
+    this.baseSellingPriceGst,
+    this.basePurchasePriceGst,
+    this.imageFile,
+    this.sellerName,
+    this.available = true,
+    this.expiryDate,
+    this.batchNumber,
+  });
 
   String? name;
   String? id;
@@ -38,7 +42,11 @@ class ProductFormInput {
   String? barCode;
   String? quantity;
   String? image;
-  String? expirydate;
+  String? sellerName;
+  bool? available;
+  DateTime? expiryDate;
+  String? batchNumber;
+
   bool gst;
   XFile? imageFile;
 
@@ -50,7 +58,7 @@ class ProductFormInput {
         if (barCode != "" && barCode != 'null') "barCode": barCode,
         "quantity": quantity,
         "id": id,
-        if (expirydate != "" && expirydate != 'null') "expiryDate": expirydate,
+        if (expiryDate != null) 'expiryDate': expiryDate,
         if (gst) "GSTRate": gstRate,
         if (gst) "saleSGST": salesgst,
         if (gst) "saleCGST": salecgst,
@@ -60,24 +68,33 @@ class ProductFormInput {
         if (gst) "purchaseIGST": purchaseigst,
         if (gst) "condition": gst,
         if (gst) "baseSellingPrice": baseSellingPriceGst,
-        if (gst) "basePurchasePrice": basePurchasePriceGst
+        if (gst) "basePurchasePrice": basePurchasePriceGst,
+        "sellerName": sellerName,
+        "available": available ?? true,
+        if (batchNumber != null) "batchNumber": batchNumber,
       };
+
   factory ProductFormInput.fromMap(map) => ProductFormInput(
-        name: map['name'],
-        purchasePrice: map['purchasePrice'].toString(),
-        sellingPrice: map['sellingPrice'].toString(),
-        barCode: map['barCode'].toString(),
-        quantity: map['quantity'].toString(),
-        image: map['image'].toString(),
-        id: map['_id'].toString(),
-        gstRate: map['GSTRate'].toString(),
-        salecgst: map['saleCGST'].toString(),
-        saleigst: map['saleIGST'].toString(),
-        salesgst: map['saleSGST'].toString(),
-        purchasecgst: map['purchaseCGST'].toString(),
-        purchaseigst: map['purchaseIGST'].toString(),
-        purchasesgst: map['purchaseSGST'].toString(),
-        baseSellingPriceGst: map['baseSellingPrice'].toString(),
-        basePurchasePriceGst: map['basePurchasePrice'].toString(),
-      );
+      name: map['name'],
+      purchasePrice: map['purchasePrice'].toString(),
+      sellingPrice: map['sellingPrice'].toString(),
+      barCode: map['barCode'].toString(),
+      quantity: map['quantity'].toString(),
+      image: map['image'].toString(),
+      id: map['_id'].toString(),
+      gstRate: map['GSTRate'].toString(),
+      salecgst: map['saleCGST'].toString(),
+      saleigst: map['saleIGST'].toString(),
+      salesgst: map['saleSGST'].toString(),
+      purchasecgst: map['purchaseCGST'].toString(),
+      purchaseigst: map['purchaseIGST'].toString(),
+      purchasesgst: map['purchaseSGST'].toString(),
+      baseSellingPriceGst: map['baseSellingPrice'].toString(),
+      basePurchasePriceGst: map['basePurchasePrice'].toString(),
+      sellerName: map['sellerName'].toString(),
+      available: map['available'] ?? true,
+      batchNumber: map['batchNumber'] != null ? map['batchNumber'] : null,
+      expiryDate: map['expiryDate'] != null
+          ? DateTime.parse((map['expiryDate']).toString().substring(0, 10))
+          : null);
 }

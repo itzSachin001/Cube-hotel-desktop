@@ -351,15 +351,14 @@ class _CreateProductState extends State<CreateProduct> {
                           hintText: 'Select expiry date',
                           onChanged: (DateTime value) {
                             setState(() {
-                              _formInput.expirydate =
-                                  DateFormat('dd/MM/yyyy').format(value);
+                              _formInput.expiryDate = value;
+                              print(value);
+                              ;
                             });
                           },
                           onSave: (DateTime? value) {},
-                          value: _formInput.expirydate != null &&
-                                  _formInput.expirydate!.isNotEmpty
-                              ? DateFormat('dd/MM/yyyy')
-                                  .parse(_formInput.expirydate!)
+                          value: _formInput.expiryDate != null
+                              ? _formInput.expiryDate
                               : null,
                           validator: (DateTime? value) => null,
                           firstDate: DateTime.now(),

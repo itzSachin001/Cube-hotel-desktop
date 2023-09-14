@@ -60,6 +60,23 @@ class OrderItemInput {
         product: json["product"],
       );
 
+  Map<String, dynamic> toJson(OrderType invoiceType) {
+    return {
+      "price": invoiceType == OrderType.sale
+          ? (product?.sellingPrice ?? 1)
+          : (product?.purchasePrice ?? 1),
+      "quantity": quantity,
+      "product": {
+        'name': product!.name,
+        'baseSellingPriceGst': product!.baseSellingPriceGst != 'null'
+            ? product!.baseSellingPriceGst
+            : null,
+        'sellingPrice': product!.sellingPrice,
+        'gstRate': product!.saleigst != 'null' ? product!.saleigst : null,
+      }
+    };
+  }
+
   Map<String, dynamic> toSaleMap() => {
         "price": (product?.sellingPrice ?? 1),
         "quantity": quantity,

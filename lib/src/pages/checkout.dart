@@ -14,6 +14,7 @@ import 'package:shopos/src/models/user.dart';
 import 'package:shopos/src/pages/create_party.dart';
 import 'package:shopos/src/services/global.dart';
 import 'package:shopos/src/services/locator.dart';
+import 'package:shopos/src/services/order_services.dart';
 import 'package:shopos/src/services/party.dart';
 import 'package:shopos/src/services/user.dart';
 import 'package:shopos/src/widgets/custom_button.dart';
@@ -59,6 +60,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.initState();
     _checkoutCubit = CheckoutCubit();
     _typeAheadController = TextEditingController();
+    fetchNTPTime();
   }
 
   Future<void> fetchNTPTime() async {
@@ -115,12 +117,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    fetchNTPTime();
-  }
-
-  @override
   void dispose() {
     _checkoutCubit.close();
     _typeAheadController.dispose();
@@ -142,17 +138,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
               height: 10,
             ),
             ListTile(
-              title: const Text("With GST"),
+              title: const Text("Open Pdf"),
               onTap: () {
                 _onTapShare(0);
               },
             ),
-            ListTile(
-              title: const Text("Without GST"),
-              onTap: () {
-                _onTapShare(1);
-              },
-            ),
+            // ListTile(
+            //   title: const Text("Without GST"),
+            //   onTap: () {
+            //     _onTapShare(1);
+            //   },
+            // ),
             ListTile(
                 title: const Text("Whatsapp Message"),
                 onTap: () {
@@ -241,18 +237,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // Navigator.of(context)
     //     .pushNamed(ShowPdfScreen.routeName, arguments: htmlContent);
 
-    generatePdf(
-        fileName: "Invoice",
-        date: DateTime.now().toString(),
-        companyName: user.businessName!,
-        orderInput: widget.args.orderInput,
-        user: user,
-        totalPrice: totalPrice() ?? '',
-        gstType: 'WithGST',
-        orderType: widget.args.invoiceType,
-        subtotal: totalbasePrice() ?? '',
-        gstTotal: totalgstPrice() ?? '',
-        invoiceNum: date);
+    DateTime time = DateTime.now();
+
+    await OrderServices.pdf(
+      orderInput: widget.args.orderInput,
+      invoiceNum: date ?? DateTime.now().toIso8601String(),
+      address: user.address!,
+      companyName: user.businessName ?? '',
+      email: user.email ?? '',
+      phoneNo: user.phoneNumber!,
+      date: '${time.day}/${time.month}/${time.year}',
+      reportType: widget.args.invoiceType,
+    );
+
+    // generatePdf(
+    //     fileName: "Invoice",
+    //     date: DateTime.now().toString(),
+    //     companyName: user.businessName!,
+    //     orderInput: widget.args.orderInput,
+    //     user: user,
+    //     totalPrice: totalPrice() ?? '',
+    //     gstType: 'WithGST',
+    //     orderType: widget.args.invoiceType,
+    //     subtotal: totalbasePrice() ?? '',
+    //     gstTotal: totalgstPrice() ?? '',
+    //     invoiceNum: date);
     // final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(
     //   htmlContent,
     //   targetPath!.first.path,
@@ -304,17 +313,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // Navigator.of(context)
     //     .pushNamed(ShowPdfScreen.routeName, arguments: htmlContent);
 
-    generatePdf(
-      fileName: "Invoice",
-      date: DateTime.now().toString(),
-      companyName: user.businessName!,
-      orderInput: widget.args.orderInput,
-      user: user,
-      totalPrice: totalPrice() ?? '',
-      gstType: 'WithoutGST',
-      orderType: widget.args.invoiceType,
-      invoiceNum: date,
-    );
+    DateTime time = DateTime.now();
+
+    await OrderServices.pdf(
+        orderInput: widget.args.orderInput,
+        invoiceNum: date!,
+        address: user.address!,
+        companyName: user.businessName ?? '',
+        email: user.email ?? '',
+        phoneNo: user.phoneNumber!,
+        date: '${time.day}/${time.month}/${time.year}',
+        reportType: widget.args.invoiceType);
+
+    // generatePdf(
+    //   fileName: "Invoice",
+    //   date: DateTime.now().toString(),
+    //   companyName: user.businessName!,
+    //   orderInput: widget.args.orderInput,
+    //   user: user,
+    //   totalPrice: totalPrice() ?? '',
+    //   gstType: 'WithoutGST',
+    //   orderType: widget.args.invoiceType,
+    //   invoiceNum: date,
+    // );
     // final generatedPdfFile = await FlutterHtmlToPdf.convertFromHtmlContent(
     //   htmlContent,
     //   targetPath!.first.path,

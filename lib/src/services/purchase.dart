@@ -16,6 +16,7 @@ class PurchaseService {
             orderItemInput.orderItems?.map((e) => e.toPurchaseMap()).toList(),
         'modeOfPayment': orderItemInput.modeOfPayment,
         'party': orderItemInput.party?.id,
+        'invoiceNum': date
       },
     );
     return response;
